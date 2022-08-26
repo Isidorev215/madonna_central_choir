@@ -1,28 +1,17 @@
 const express = require('express');
-const { connectToDb } = require('./v1/config/dbConnect');
 const passport = require('passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-
 
 // loading env
 if(process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
 }
 
-
 // init app and middleware
 const app = express();
 
-// db connection
-connectToDb((err) => {
-  if(!err){
-    console.log('Nec App Connected')
-    // app.listen(process.env.PORT || 3000, () => {
-    //   console.log('app Listening on port 3000')
-    // })
-  }
-})
+require('./v1/config/passportConfig')(passport);
 
 // Middlewares
 app.use(express.json());
@@ -49,7 +38,7 @@ app.use((err, req, res, next) => {
   res.status(err.code || 500).send({
     status: 'FAILED',
     data: {
-      message: err.message || 'Internal Server Error',
+      error: err.message || 'Internal Server Error',
       details: err.details || ''
     }
 

@@ -2,14 +2,12 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
-const UsersModel = require("../models/UsersModel");
-
-// Extract the models methods
-const { createFirstUserAsAdmin, findUser } = UsersModel();
+const passport = require("passport");
+const { createFirstUserAsAdmin, findUser } = require("../models/UsersModel")();
 
 router.post(
   "/register",
-  body("email", "Name field is required")
+  body("email", "Email field is required")
     .isEmail()
     .withMessage("Email provided is not valid")
     .normalizeEmail(),
@@ -82,6 +80,23 @@ router.post(
   }
 );
 
-
+router.post(
+  '/login',
+  (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if(err){ return next(err); }
+      if(!user){
+        const error = new Error(info.message)
+        error.code = 401;
+        return next(error)
+      }
+      res.status(201).send({
+        status: "OK",
+        data: {
+          message: 'Login Successful'
+        },
+      })
+  })(req, res, next);
+})
 
 module.exports = router;
