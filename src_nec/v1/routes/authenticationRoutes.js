@@ -76,6 +76,10 @@ router.post(
           });
         });
       }
+    })
+    .catch(err => {
+      next(err);
+      return;
     });
   }
 );
@@ -90,11 +94,14 @@ router.post(
         error.code = 401;
         return next(error)
       }
-      res.status(201).send({
-        status: "OK",
-        data: {
-          message: 'Login Successful'
-        },
+      // When you use passport.authenticate, it is your apps responsibility to login using req.login
+      req.login(user, () => {
+        res.status(201).send({
+          status: "OK",
+          data: {
+            message: 'Login Successful'
+          },
+        })
       })
   })(req, res, next);
 })

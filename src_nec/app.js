@@ -11,7 +11,6 @@ if(process.env.NODE_ENV !== 'production'){
 // init app and middleware
 const app = express();
 
-require('./v1/config/passportConfig')(passport);
 
 // Middlewares
 app.use(express.json());
@@ -26,14 +25,18 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+require('./v1/config/passportConfig')(passport);
+
 // Routes
-app.use('/api/v1', require('./v1/routes/userRoutes'));
+app.use('/api/v1', require('./v1/routes/authenticationRoutes'));
+app.use('/api/v1', require('./v1/routes/normalRoutes'));
 
 // error handle middleware
 app.use((err, req, res, next) => {
-  console.log(err.stack);
   if(process.env.NODE_ENV === 'production'){
     delete err.stack;
+  }else{
+    console.log(err.stack);
   }
   res.status(err.code || 500).send({
     status: 'FAILED',
