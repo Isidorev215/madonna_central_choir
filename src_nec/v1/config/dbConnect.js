@@ -1,12 +1,12 @@
 const { MongoClient } = require('mongodb');
 
-let mongoClient;
+let dbConnection;
 
 module.exports = {
-  connectToClient: (callback) => {
-    MongoClient.connect(process.env.MONGO_CLUSTER)
+  connectToDb: (callback) => {
+    MongoClient.connect(`${process.env.MONGO_CLUSTER}/nec`)
     .then(client => {
-      mongoClient = client;
+      dbConnection = client.db();
       return callback();
     })
     .catch(err => {
@@ -14,5 +14,5 @@ module.exports = {
       return callback(err);
     })
   },
-  getClient: () => mongoClient
+  getDb: () => dbConnection,
 }

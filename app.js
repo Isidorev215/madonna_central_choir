@@ -1,48 +1,14 @@
-require('dotenv').config();
 const express = require('express');
-const { connectToClient } = require('./config/db');
+const vhost = require('vhost');
+const nec_app = require('./src_nec/app')
 
+const PORT = process.env.PORT || 3000;
 
-// init app and middleware
 const app = express();
-app.use(express.json());
+app.set("subdomain offset", 1);
 
+app.use(vhost( "sub1.mysite.local", nec_app ));
 
-// db connection
-connectToClient((err) => {
-  if(!err){
-    app.listen(process.env.PORT || 3000, () => {
-      console.log('app Listening on port 3000')
-    })
-  }
+app.listen(PORT, () => {
+  console.log(`App listening at http://mysite.local:${PORT}`)
 })
-
-
-
-// error handle middleware
-app.use((err, req, res, next) => {
-  console.log(err.stack);
-  if(process.env.NODE_ENV === 'production'){
-    delete err.stack;
-  }
-  res.status(err.code || 500).send({
-    status: 'FAILED',
-    data: {
-      error: {
-        error: err.message || 'Internal Server Error'
-      }
-    }
-
-  })
-})
-
-// catch 404 error
-app.use((req, res) => {
-  res.status(404).send({
-    status: 404,
-    error: 'Not Found'
-  })
-})
-
-
-
