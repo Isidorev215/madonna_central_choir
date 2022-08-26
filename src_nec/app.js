@@ -29,7 +29,7 @@ require('./v1/config/passportConfig')(passport);
 
 // Routes
 app.use('/api/v1', require('./v1/routes/authenticationRoutes'));
-app.use('/api/v1', require('./v1/routes/normalRoutes'));
+app.use('/api/v1', require('./v1/routes/baseRoutes'));
 
 // error handle middleware
 app.use((err, req, res, next) => {

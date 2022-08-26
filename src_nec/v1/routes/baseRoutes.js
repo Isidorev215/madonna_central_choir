@@ -1,15 +1,9 @@
 const { Router } = require('express')
 const router = Router();
 const { ensureAuthentication } = require('../config/auth');
+const baseController = require('../controllers/baseController');
 
 
-router.get('/config', ensureAuthentication, (req, res, next) => {
-  res.send({
-    status: 'OK',
-    data: {
-      ...req.user
-    }
-  })
-})
+router.get('/config', ensureAuthentication, baseController.getConfig)
 
 module.exports = router;
