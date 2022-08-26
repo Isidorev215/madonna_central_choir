@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const { swaggerDocs: v1SwaggerDocs } = require('./v1/swagger');
 
 // loading env
 if(process.env.NODE_ENV !== 'production'){
@@ -22,10 +23,13 @@ app.use(session({
   saveUninitialized: true
 }))
 
+// Passport middlewares
 app.use(passport.initialize());
 app.use(passport.session());
-
 require('./v1/config/passportConfig')(passport);
+
+// Swagger documentation
+v1SwaggerDocs(app)
 
 // Routes
 app.use('/api/v1', require('./v1/routes/authenticationRoutes'));

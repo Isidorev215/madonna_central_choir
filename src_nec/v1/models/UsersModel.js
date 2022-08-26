@@ -1,5 +1,22 @@
 const { getClient } = require('../../../config/clusterConnect');
-const { ObjectId } = require('mongodb')
+const { ObjectId } = require('mongodb');
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 61dbae02-c147-4e28-863c-db7bd402b2d6
+ *         email:
+ *           type: string
+ *           example: abc@gmail.com
+ *
+ */
+
 
 // collection name here, it is same for all methods in the model
 const dbName = 'nec';
