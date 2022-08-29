@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors')
 const passport = require('passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -12,23 +11,26 @@ if(process.env.NODE_ENV !== 'production'){
 
 // init app and middleware
 const app = express();
-app.use(cors());
 
 
 // Middlewares
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
 app.use(cookieParser());
 app.use(session({
   secret: process.env.PASSPORT_SECRET,
-  resave: true,
-  saveUninitialized: true
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24
+  }
 }))
 
-// Passport middlewares
+// Passport stuff...
+require('./v1/config/passportConfig')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
-require('./v1/config/passportConfig')(passport);
 
 // Swagger documentation
 v1SwaggerDocs(app)
@@ -48,7 +50,7 @@ app.use((err, req, res, next) => {
     status: 'FAILED',
     data: {
       error: err.message || 'Internal Server Error',
-      details: err.details || ''
+      details: err.details || []
     }
 
   })

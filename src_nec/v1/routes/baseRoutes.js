@@ -1,9 +1,10 @@
 const { Router } = require('express')
 const router = Router();
-const { ensureAuthentication } = require('../config/auth');
 const baseController = require('../controllers/baseController');
 
+const { ensureLocalAuthentication } = require('../config/auth');
 
-router.get('/config', ensureAuthentication, baseController.getConfig)
+
+router.get('/config', ensureLocalAuthentication, baseController.getConfig)
 
 module.exports = router;

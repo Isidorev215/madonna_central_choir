@@ -118,7 +118,8 @@ function UserRegistrationValidation(){
 router.post("/register", UserRegistrationValidation(), async (req, res, next) => {
   // express-validatior error code
   const registrationErrorFormatter = ({ msg, param }) => {
-    return `${param}: ${msg}`;
+    return `${msg}`;
+    // return `${param}: ${msg}`;
   };
   const errors = validationResult(req).formatWith(registrationErrorFormatter);
 
@@ -181,6 +182,7 @@ router.post('/login', (req, res, next) => {
     }
     // When you use passport.authenticate, it is your apps responsibility to login using req.login
     req.login(user, () => {
+      console.log(req.cookies)
       res.status(201).send({
         status: "OK",
         data: {

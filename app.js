@@ -1,5 +1,6 @@
 const express = require('express');
 const vhost = require('vhost');
+const cors = require('cors');
 const nec_app = require('./src_nec/app');
 const { connectToCluster } = require('./config/clusterConnect');
 
@@ -11,6 +12,10 @@ if(process.env.NODE_ENV !== 'production'){
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
 
 // dbClient connection
 connectToCluster((err) => {
