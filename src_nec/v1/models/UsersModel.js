@@ -36,7 +36,7 @@ module.exports = function(){
           resolve({ message: 'Admin User Created Successfully'})
         }else{
           let admin = await collection.findOne({ isAdmin: true })
-          await collection.updateOne({_id: ObjectId(admin._id)}, { $push: { pending_members_nec: { ...user, isAdmin: false} }})
+          await collection.updateOne({_id: ObjectId(admin._id)}, { $push: { pending_nec_members: { ...user, isAdmin: false } }})
           resolve({message: 'User Successfully Added, Awaiting verification'})
         }
 

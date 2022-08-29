@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const passport = require('passport');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -11,6 +12,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 // init app and middleware
 const app = express();
+app.use(cors());
 
 
 // Middlewares

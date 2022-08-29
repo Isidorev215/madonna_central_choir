@@ -4,9 +4,17 @@ const swaggerUi = require('swagger-ui-express');
 const options = {
   definition: {
     openapi: "3.0.0",
-    info: { title: 'MCC API', VERSION: "1.0.0" }
+    info:
+    { title: 'MCC API',
+      version: "1.0.0",
+      description: 'Nec app served on a subdomain',
+      contact: {
+        name: 'Highlord Isidore'
+      },
+      servers: [`http://${process.env.SUBDOMAIN_ONE}.${process.env.SERVER_DOMAIN}:${process.env.PORT || 3000}/api/v1`]
+    }
   },
-  apis: ['./src_nec/v1/routes/authenticationRoutes.js', './src_nec/v1/models/UserModel.js'],
+  apis: ['./src_nec/v1/routes/*.js', './src_nec/v1/models/UserModel.js'],
 }
 
 const swaggerSpec = swaggerJSDoc(options);
