@@ -1,6 +1,5 @@
 const express = require('express');
 const passport = require('passport');
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const { swaggerDocs: v1SwaggerDocs } = require('./v1/swagger');
 
@@ -16,27 +15,17 @@ const app = express();
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
-
 app.use(cookieParser());
-app.use(session({
-  secret: process.env.PASSPORT_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24
-  }
-}))
 
 // Passport stuff...
-require('./v1/config/passportConfig')(passport);
+require('./v1/config/passportJwtConfig')(passport);
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Swagger documentation
 v1SwaggerDocs(app)
 
 // Routes
-app.use('/api/v1', require('./v1/routes/authenticationRoutes'));
+app.use('/api/v1', require('./v1/routes/authRoutes'));
 app.use('/api/v1', require('./v1/routes/baseRoutes'));
 
 // error handle middleware

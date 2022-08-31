@@ -2,9 +2,9 @@ const { Router } = require('express')
 const router = Router();
 const baseController = require('../controllers/baseController');
 
-const { ensureLocalAuthentication } = require('../config/auth');
+const { ensureJwtAuthentication } = require('../middlewares/authMiddlewares');
 
 
-router.get('/config', ensureLocalAuthentication, baseController.getConfig)
+router.get('/config', ensureJwtAuthentication, baseController.getConfig)
 
 module.exports = router;

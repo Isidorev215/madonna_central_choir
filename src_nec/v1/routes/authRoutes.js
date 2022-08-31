@@ -1,10 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const jsonwebtoken = require('jsonwebtoken');
 const { body, validationResult } = require("express-validator");
-const passport = require("passport");
 const { createFirstUserAsAdmin, findUser } = require("../models/UsersModel")();
 
+
+function UserLoginValidation(){
+  return [
+    body('email')
+      .exists()
+      .withMessage('Email is required'),
+    body('password')
+      .exists()
+      .withMessage('Password is required')
+  ]
+}
 function UserRegistrationValidation(){
   return [
     body("firstName")
@@ -172,25 +183,89 @@ router.post("/register", UserRegistrationValidation(), async (req, res, next) =>
   });
 });
 
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if(err){ return next(err); }
+router.post('/login', UserLoginValidation(), (req, res, next) => {
+  let{ email, password } = req.body;
+
+  findUser({ email: email})
+  .then(user => {
     if(!user){
-      const error = new Error(info.message)
-      error.code = 401;
-      return next(error)
-    }
-    // When you use passport.authenticate, it is your apps responsibility to login using req.login
-    req.login(user, () => {
-      console.log(req.cookies)
-      res.status(201).send({
-        status: "OK",
-        data: {
-          message: 'Login Successful'
-        },
+
+      // check if user is awaiting approval..........................................
+      findUser({ isAdmin: true })
+      .then(admin => {
+        if(!admin){
+          let error = new Error('Admin account not created')
+          error.code = 401
+          next(error);
+          return;
+        }
+        if(admin.hasOwnProperty('pending_nec_members')){
+          let nec_member = admin?.pending_nec_members?.find(nec_member => nec_member.email == email)
+          if(nec_member != undefined){
+            let error = new Error('Please hold for admin approval')
+            error.code = 401
+            next(error);
+            return;
+          }else{
+            // The provided email is not in the pending_nec_users
+            let error = new Error('Invalid Credentials..')
+            error.code = 401
+            next(error);
+            return;
+          }
+        }else{
+          // No User has submitted registration ('Please submit registration)
+          let error = new Error('Invalid Credentials...')
+          error.code = 401
+          next(error);
+          return;
+        }
       })
+      .catch(err => {
+        // internal server error from findingUser
+        next(err);
+        return;
+      })
+      return;
+    }
+
+    // Check the password
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if(err) next(err);
+      if(isMatch){
+        // The only point were a user is sent
+        // create and issue the JWT
+        const _id = user._id;
+        const expiriesIn = '1d';
+        const payload = {
+          sub: _id,
+          iat: Date.now(),
+          iss: process.env.JWT_ISSUER_BACKEND
+        }
+        // const jwt = jsonwebtoken.sign(payload, process.env.RSA_PRIVATE_KEY, { expiresIn: expiriesIn, algorithm: 'RS256' });
+        const jwt = jsonwebtoken.sign(payload, process.env.PASSPORT_SECRET, { expiresIn: expiriesIn });
+        res.status(200).send({
+          status: 'OK',
+          data: {
+            token: `Bearer ${jwt}`,
+            expires: expiriesIn
+          }
+        })
+      }else{
+        // Password Incorrect
+        let error = new Error('Invalid Credentials')
+        error.code = 401
+        next(error);
+        return;
+      }
     })
-  })(req, res, next);
+
+  })
+  .catch(err => {
+    next(err);
+    return;
+  })
+
 })
 
 module.exports = router;

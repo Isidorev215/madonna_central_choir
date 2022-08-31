@@ -20,6 +20,7 @@ app.use(cors({
 // dbClient connection
 connectToCluster((err) => {
   if(!err){
+    console.log(`Mongo cluster connected`)
     app.listen(PORT, () => {
       console.log(`App listening at http://${process.env.SERVER_DOMAIN}:${PORT}`)
     })

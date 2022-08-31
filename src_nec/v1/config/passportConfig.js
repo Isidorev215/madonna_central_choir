@@ -1,7 +1,7 @@
 const localStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 
-const { findUser } = require('../models/UsersModel')();
+const { findUser, findUserbyId } = require('../models/UsersModel')();
 
 module.exports = function(passport){
   passport.use(new localStrategy({ usernameField: 'email'}, (email, password, done) => {
@@ -41,6 +41,7 @@ module.exports = function(passport){
       bcrypt.compare(password, user.password, (err, isMatch) => {
         if(err) throw err;
         if(isMatch){
+          // The only point were a user is sent
           return done(null, user);
         }else{
           // Password Incorrect
@@ -55,12 +56,15 @@ module.exports = function(passport){
   }))
 
   passport.serializeUser((user, done) => {
-    done(null, user);
+    done(null, user._id);
   });
 
-  passport.deserializeUser((user, done) => {
-    delete user.password;
-    done(null, user)
+  passport.deserializeUser((id, done) => {
+    findUserbyId(id)
+    .then(user => {
+      delete user.password;
+      done(null, user);
+    })
   })
 }
 
