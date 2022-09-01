@@ -4,12 +4,13 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const { findUserbyId } = require('../models/UsersModel')();
-const pathToKey = path.join(__dirname, '..', '..', 'id_rsa_pub.pem');
-const RSA_PUBLIC_KEY = fs.readFileSync(pathToKey, 'utf-8');
+// const pathToKey = path.join(__dirname, '..', '..', 'id_rsa_pub.pem');
+// const RSA_PUBLIC_KEY = fs.readFileSync(pathToKey, 'utf-8');
 
 const JwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.PASSPORT_SECRET,
+  issuer: process.env.JWT_ISSUER_BACKEND,
   // algorithms: ['RS256']
 }
 

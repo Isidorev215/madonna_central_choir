@@ -233,22 +233,23 @@ router.post('/login', UserLoginValidation(), (req, res, next) => {
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if(err) next(err);
       if(isMatch){
-        // The only point were a user is sent
-        // create and issue the JWT
+        // The only point were a user is sent. Create and issue the JWT
+        // remember, JWT payload takes time in seconds. I am converting back to ms in the response
         const _id = user._id;
-        const expiriesIn = '1d';
+        const expiresIn = Math.floor(Date.now() / 1000) + (60 * 60);
         const payload = {
           sub: _id,
-          iat: Date.now(),
-          iss: process.env.JWT_ISSUER_BACKEND
+          iat: Math.floor(Date.now() / 1000),
+          exp: expiresIn,
+          iss: process.env.JWT_ISSUER_BACKEND,
         }
         // const jwt = jsonwebtoken.sign(payload, process.env.RSA_PRIVATE_KEY, { expiresIn: expiriesIn, algorithm: 'RS256' });
-        const jwt = jsonwebtoken.sign(payload, process.env.PASSPORT_SECRET, { expiresIn: expiriesIn });
+        const jwt = jsonwebtoken.sign(payload, process.env.PASSPORT_SECRET);
         res.status(200).send({
           status: 'OK',
           data: {
             token: `Bearer ${jwt}`,
-            expires: expiriesIn
+            expires: (expiresIn * 1000),
           }
         })
       }else{
