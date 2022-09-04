@@ -1,44 +1,42 @@
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require('jsonwebtoken');
-const Admins = require("../models/AdminsModel")();
-const Members = require('../models/MembersModel')();
+const Exco = require('../models/ExcoModel');
+const Member = require('../models/MemberModel');
 
 const registration = async (req, res, next) => {
-  // Create the user
   try {
-    const admin = await Admins.findAdmin({ email: req.body.email })
-    const member = await Members.findMember({ email: req.body.email })
-    if(admin || member){
+   const exco = await Exco.findOne({email: req.body.email})
+   const member = await Member.findOne({email: req.body.email})
+    if(exco || member){
       const error = new Error('Email is already in use');
       error.code = 400;
       throw error;
     }
 
-    // remove password_confirm and hash password
+    // remove password_confirm and hash passsword
     delete req.body.password_confirm;
     const hash = await bcrypt.hash(req.body.password, 10)
     req.body.password = hash;
 
-    const documentCount = await Admins.getCollectionCursor().estimatedDocumentCount({})
-    if(documentCount === 0){
-      await Admins.createAdminUser(req.body)
+    const excoCount = await Exco.estimatedDocumentCount({})
+    if(excoCount === 0){
+      await Exco.create(req.body)
       res.status(201).send({
         status: 'OK',
         data: {
-          message: 'Admin Successfully Created'
+          message: 'Exco Successfully Created'
         }
       })
     }else{
-      const createdMember = await Members.createMember(req.body)
-      const result = await Admins.addPendingMember(createdMember.insertedId);
+      const createdMember = await Member.create(req.body)
+      await Exco.updateMany({}, { $push: { pending_nec_members: createdMember._id }}, { runValidators: true })
       res.status(201).send({
         status: 'OK',
         data: {
-          message: result
+          message: 'Member Created. Awaiting Approval'
         }
       })
     }
-
   }catch(error){
     next(error);
     return;
@@ -50,30 +48,30 @@ const login = async (req, res, next) => {
 
   let user_found = {};
   try {
-    const anyAdmin = await Admins.findAdmin({ isAdmin: true })
-    if(!anyAdmin){
-      let error = new Error('Admin account not created');
+    const anyExco = await Exco.findOne({ isExco: true })
+    if(!anyExco){
+      let error = new Error('Exco account not created');
       error.code = 401;
       throw error;
     }else{
-      const admin = await Admins.findAdmin({ email: email })
-      if(admin){
-        user_found.user = admin;
-        user_found.role = 'Admins';
+      const exco = await Exco.findOne({ email: email })
+      if(exco){
+        user_found.user = exco;
+        user_found.role = 'excos';
       }else{
-        const member = await Members.findMember({ email: email })
+        const member = await Member.findOne({ email: email })
         if(!member){
           let error = new Error('Invalid credentials');
           error.code = 401;
           throw error;
         }
         if(member && member.isApproved === false){
-          let error = new Error('Please hold for admin approval')
+          let error = new Error('Please hold for exco approval')
           error.code = 401;
           throw error;
         }
         user_found.user = member;
-        user_found.role = 'Members';
+        user_found.role = 'members';
       }
     }
 
