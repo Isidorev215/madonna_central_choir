@@ -6,5 +6,6 @@ const { ensureJwtAuthentication } = require('../middlewares/authMiddlewares');
 
 
 router.get('/config', ensureJwtAuthentication, baseController.getConfig)
+router.put('/profile/update', ensureJwtAuthentication, baseController.updateProfile)
 
 module.exports = router;

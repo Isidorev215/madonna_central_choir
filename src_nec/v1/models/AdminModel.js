@@ -8,19 +8,20 @@ const churchSchema = new Schema({
   country: { type: String, default: null },
 })
 
-const memberSchema = new Schema({
-  firstName: { type: String, required: true },
+const adminSchema = new Schema({
+  firstName: { type: String, required: true, },
   lastName: { type: String, required: true },
   email: { type: String, required: true, lowercase: true },
-  password: { type: String, required: true },
-  isApproved: { type: Boolean, default: false },
+  password: { type: String, required: true, },
+  pending_nec_members: { type: [mongoose.SchemaTypes.ObjectId], ref: 'Member' },
   chapter: { type: String, default: null },
   state: { type: String, default: null },
   country: { type: String, default: 'Nigeria' },
   occupation: { type: String, default: null },
   profileImage: { type: String, default: null },
   phone: { type: String, default: null },
-  isAdmin: { type: Boolean, default: false },
+  isAdmin: { type: Boolean, default: true },
+  possiblePositions: { type: [String] },
   position: { type: String, default: 'Member' },
   church: {
     type: churchSchema,
@@ -47,10 +48,9 @@ const memberSchema = new Schema({
   isRegularized: { type: Boolean, default: false },
   regularizedAt: { type: Date, default: null },
   graduatedAt: { type: Date, default: null },
-},
-{
-  timestamps: true,
+}, {
+  timestamps: true
 })
 
-const Member = mongoose.model('Member', memberSchema);
-module.exports = Member;
+const Admin = mongoose.model('Admin', adminSchema);
+module.exports = Admin;

@@ -13,7 +13,7 @@ const strategy = new JwtStrategy(JwtOptions, (payload, done) => {
   findUserById(payload.role, payload.sub)
   .then(user => {
     if(user){
-      return done(null, user);
+      return done(null, {...user, role: payload.role});
     }else{
       // User id is not found in the database: User does not exist
       return done(null, false, { message: 'Invalid credentials'});
