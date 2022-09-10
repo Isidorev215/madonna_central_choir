@@ -1,7 +1,6 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-
-const { findUserById } = require('../models/dynamicUserModel')();
+const User = require('../models/UsersModel');
 
 const JwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -9,19 +8,18 @@ const JwtOptions = {
   issuer: process.env.JWT_ISSUER_BACKEND,
 }
 
-const strategy = new JwtStrategy(JwtOptions, (payload, done) => {
-  findUserById(payload.role, payload.sub)
-  .then(user => {
+const strategy = new JwtStrategy(JwtOptions, async (payload, done) => {
+  try {
+    let user = await User.findById(payload.sub).select('-password').lean()
     if(user){
-      return done(null, {...user, role: payload.role});
+      return done(null, user);
     }else{
       // User id is not found in the database: User does not exist
       return done(null, false, { message: 'Invalid credentials'});
     }
-  })
-  .catch(err => {
-    done(err, false, { message: 'Internal server error.'});
-  })
+  }catch(err){
+    return done(err, false, { message: 'Initernal server error' })
+  }
 })
 
 module.exports = (passport) => {

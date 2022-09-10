@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { UserLoginValidation, UserRegistrationValidation } = require('../config/validationChains');
-const { handleValidationError } = require('../middlewares/validationError');
+const { handleValidationError, UserLoginValidation, UserRegistrationValidation } = require('../middlewares/expressValidator');
 const AuthController = require('../controllers/AuthController')
 
 

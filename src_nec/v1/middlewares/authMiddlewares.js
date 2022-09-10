@@ -10,8 +10,6 @@ module.exports = {
         next(error);
         return;
       }
-      // We remove the hashed password so it is not in the front-end
-      delete user.password;
       req.user = user;
       next();
     })(req, res, next);

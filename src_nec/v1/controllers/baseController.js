@@ -1,5 +1,5 @@
-const Admin = require('../models/AdminModel');
-const Member = require('../models/MemberModel');
+const { matchedData } = require('express-validator');
+const User = require('../models/UsersModel');
 
 
 // it is the controllers that communicate with the models
@@ -13,16 +13,11 @@ const getConfig = (req, res, next) => {
 }
 
 const updateProfile = async (req, res, next) => {
-  let payload = req.body;
-  let user;
+  // matchedData so that only the fields defined in the validation chain are used
+  const payload = matchedData(req, { locations: ['body'], includeOptionals: true });
   try {
-    if(req.user?.isAdmin){
-      user = await Admin.findById(req.user._id);
-      Object.assign(user, payload);
-    }else{
-      user = await Member.findById(req.user._id);
-      Object.assign(user, payload);
-    }
+    let user = await User.findById(req.user._id)
+    Object.assign(user, payload);
     await user.save();
     res.status(200).send({
       status: 'OK',

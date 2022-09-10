@@ -8,11 +8,11 @@ const churchSchema = new Schema({
   country: { type: String, default: null },
 })
 
-const memberSchema = new Schema({
-  firstName: { type: String, required: true },
+const userSchema = new Schema({
+  firstName: { type: String, required: true, },
   lastName: { type: String, required: true },
-  email: { type: String, required: true, lowercase: true },
-  password: { type: String, required: true },
+  email: { type: String, required: true, lowercase: true, unique: true },
+  password: { type: String, required: true, },
   isApproved: { type: Boolean, default: false },
   chapter: { type: String, default: null },
   state: { type: String, default: null },
@@ -20,26 +20,30 @@ const memberSchema = new Schema({
   occupation: { type: String, default: null },
   profileImage: { type: String, default: null },
   phone: { type: String, default: null },
-  isAdmin: { type: Boolean, default: false },
-  position: { type: String, default: 'Member' },
+  roles: {
+    type: [String],
+    enum: { values: ['Admin', 'User'], message: '{VALUE} is not a supported role'},
+    default: ['User']
+  },
+  membersPosition: { type: String, default: 'Member' },
   church: {
     type: churchSchema,
     default: () => ({})
   },
-  marital_status: {
+  maritalStatus: {
     type: String,
     default: null,
-    enum: { values: ['Single', 'Married', 'Clergy', null], message: '{value} is not supported' },
+    enum: { values: ['Single', 'Married', 'Clergy', null], message: '{VALUE} is not supported' },
   },
   campus: {
     type: String,
     default: null,
-    enum: { values: ["Elele", "Akpugo", "Okija", null], message: '{value} is not a campus'},
+    enum: { values: ["Elele", "Akpugo", "Okija", null], message: '{VALUE} is not a campus'},
   },
   choirPart: {
     type: String,
     default: null,
-    enum: { values: ["Soprano", "Alto", "Tenor", "Bass", null], message: '{value} is not a valid choir part' },
+    enum: { values: ["Soprano", "Alto", "Tenor", "Bass", null], message: '{VALUE} is not a valid choir part' },
   },
   birthday: { type: Date, default: null },
   isCurrentOnDues: { type: Boolean, default: false },
@@ -47,10 +51,9 @@ const memberSchema = new Schema({
   isRegularized: { type: Boolean, default: false },
   regularizedAt: { type: Date, default: null },
   graduatedAt: { type: Date, default: null },
-},
-{
-  timestamps: true,
+}, {
+  timestamps: true
 })
 
-const Member = mongoose.model('Member', memberSchema);
-module.exports = Member;
+const User = mongoose.model('User', userSchema);
+module.exports = User;
