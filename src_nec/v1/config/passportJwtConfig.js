@@ -10,7 +10,15 @@ const JwtOptions = {
 
 const strategy = new JwtStrategy(JwtOptions, async (payload, done) => {
   try {
-    let user = await User.findById(payload.sub).select('-password').lean()
+
+    let query = User.findById(payload.sub)
+    query.select('-password')
+    query.populate({ path: 'meetings.details', select: '-attendance'})
+    query.populate({ path: 'dues.details', select: 'paid_members'})
+
+    query.lean()
+
+    let user = await query
     if(user){
       return done(null, user);
     }else{

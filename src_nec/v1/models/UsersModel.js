@@ -1,12 +1,31 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const Meeting = require('./MeetingsModel');
+const Due = require('./DuesModel');
+
 const churchSchema = new Schema({
   churchName: { type: String, default: null },
   denomination: { type: String, default: null },
   state: { type: String, default: null },
   country: { type: String, default: null },
 })
+
+const singleMeetingSchema = new Schema({
+  details: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'Meeting',
+  },
+  attended: { type: Boolean, default: false }
+}, {timestamps: true})
+
+const singleDueSchema = new Schema({
+  details: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'Due',
+  },
+  paid: { type: Boolean, default: false }
+}, {timestamps: true})
 
 const userSchema = new Schema({
   firstName: { type: String, required: true, },
@@ -19,6 +38,7 @@ const userSchema = new Schema({
   country: { type: String, default: 'Nigeria' },
   occupation: { type: String, default: null },
   profileImage: { type: String, default: null },
+  coverImage: { type: String, default: null },
   phone: { type: String, default: null },
   roles: {
     type: [String],
@@ -47,7 +67,12 @@ const userSchema = new Schema({
   },
   birthday: { type: Date, default: null },
   isCurrentOnDues: { type: Boolean, default: false },
-  attendedLastMeeting: { type: Boolean, default: false },
+  meetings: {
+    type: [singleMeetingSchema]
+  },
+  dues: {
+    type: [singleDueSchema]
+  },
   isRegularized: { type: Boolean, default: false },
   regularizedAt: { type: Date, default: null },
   graduatedAt: { type: Date, default: null },

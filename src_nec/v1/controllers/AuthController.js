@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/UsersModel');
+// epoch puposes
+const Due = require('../models/DuesModel');
+const Meeting = require('../models/MeetingsModel');
 
 const registration = async (req, res, next) => {
   try {
@@ -19,12 +22,20 @@ const registration = async (req, res, next) => {
 
     const userCount = await User.estimatedDocumentCount({})
     if(userCount === 0){
-      // The first user is created as the admin
-      await User.create({
+      // The first user is created as the admin then create the epochs
+      const adminToSave = new User({
         ...req.body,
         roles: ['Admin', 'User'],
         isApproved: true
       })
+
+      // create epochs and update epoch
+      const epochMeeting = await Meeting.collection.insertOne({ epoch: true, venue: null, desc: 'This is the epoch for meetings', attendance: [], scheduledDate: Date.now() })
+      const epochDue = await Due.collection.insertOne({ epoch: true, amount: null, desc: 'This is the epoch for dues', paid: [] })
+      adminToSave.meetings.push({ details: epochMeeting.insertedId, attended: false });
+      adminToSave.dues.push({ details: epochDue.insertedId, paid: false });
+
+      await adminToSave.save()
       res.status(201).send({
         status: 'OK',
         data: {
@@ -33,7 +44,15 @@ const registration = async (req, res, next) => {
       })
     }else{
       // Any subsequent user is just a user
-      await User.create(req.body)
+      const userToSave = new User(req.body)
+
+      // find epochs
+      const epochMeeting = await Meeting.findOne({epoch: true}).select('_id')
+      const epochDue = await Due.findOne({epoch: true}).select('_id')
+      userToSave.meetings.push({ details: epochMeeting._id, attended: false });
+      userToSave.dues.push({ details: epochDue._id, paid: false });
+
+      await userToSave.save()
       res.status(201).send({
         status: 'OK',
         data: {

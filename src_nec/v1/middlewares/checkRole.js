@@ -1,5 +1,5 @@
 
-
+// These will be useful for the routes that after the database like put/post/delete requests
 module.exports = {
   admin: function(req, res, next){
     if(!req.user.roles.includes('Admin')){
