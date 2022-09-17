@@ -66,7 +66,6 @@ const userSchema = new Schema({
     enum: { values: ["Soprano", "Alto", "Tenor", "Bass", null], message: '{VALUE} is not a valid choir part' },
   },
   birthday: { type: Date, default: null },
-  isCurrentOnDues: { type: Boolean, default: false },
   meetings: {
     type: [singleMeetingSchema]
   },
