@@ -13,8 +13,8 @@ const strategy = new JwtStrategy(JwtOptions, async (payload, done) => {
 
     let query = User.findById(payload.sub)
     query.select('-password')
-    query.populate({ path: 'meetings.details', select: '-attendance'})
-    query.populate({ path: 'dues.details', select: '-paid_members'})
+    query.populate({ path: 'meetings.details', select: '-attendance', sort: { createdAt: -1 }, perDocumentLimit: 10 })
+    query.populate({ path: 'dues.details', select: '-paid_members', sort: { createdAt: -1 }, perDocumentLimit: 10 })
 
     query.lean()
 

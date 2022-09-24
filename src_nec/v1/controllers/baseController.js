@@ -84,6 +84,34 @@ const getUsers = async (req, res, next) => {
   }
 }
 
+const getSingleUser = async (req, res, next) => {
+  const user_id = req.params.user_id;
+
+  let query;
+  if(req.user.roles.includes('Admin')){
+    query = User.findById(user_id).select('-password')
+  }else{
+    query = User.findById(user_id).select('-password -email -isApproved -roles -isCurrentOnDues -attendedLastMeeting -isRegularized -regularizedAt')
+  }
+
+  try{
+
+    query.populate({ path: 'meetings.details', select: '-attendance', sort: { createdAt: -1 }, perDocumentLimit: 10 })
+    query.populate({ path: 'dues.details', select: '-paid_members', sort: { createdAt: -1 }, perDocumentLimit: 10 })
+
+    query.lean()
+
+    let user = await query;
+    res.status(200).send({
+      status: 'OK',
+      data: user
+    })
+  }catch(error){
+    next(handleMongooseError(error));
+    return;
+  }
+}
+
 const createPosition = async (req, res, next) => {
   const payload = req.body;
   try {
@@ -109,5 +137,6 @@ module.exports = {
   getConfig,
   updateProfile,
   getUsers,
+  getSingleUser,
   createPosition
 }

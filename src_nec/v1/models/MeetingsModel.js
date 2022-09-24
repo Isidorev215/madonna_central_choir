@@ -7,13 +7,13 @@ const meetingSchema = new Schema({
   epoch: { type: Boolean, default: false },
   venue: { type: String, required: true },
   desc: { type: String },
+  scheduledDate: { type: Date, required: true },
   attendance: {
     type: [{
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'User'
     }]
   },
-  scheduledDate: { type: Date, required: true }
 }, {timestamp: true})
 
 const Meeting = mongoose.model('Meeting', meetingSchema)

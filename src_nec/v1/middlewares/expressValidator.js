@@ -1,4 +1,5 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, param, query } = require("express-validator");
+const { isValidObjectId } = require('mongoose');
 
 module.exports = {
   handleValidationError: function(req, res, next){
@@ -190,6 +191,27 @@ module.exports = {
       .withMessage('Please define the duties of this position')
       .isArray({min: 1})
       .withMessage('Duties is an array of at least one duty')
+    ]
+  },
+  getUsersValidation: function(){
+    return [
+      query('page')
+      .optional()
+      .isInt({min: 1})
+      .withMessage('Page must be a number at least 1')
+    ]
+  },
+  getSingleUserValidation: function(){
+    return [
+      param('user_id')
+      .exists()
+      .withMessage('user_id is required')
+      .custom((value, { req }) => {
+        if(!isValidObjectId(value)){
+          throw new Error('user_id is required')
+        }
+        return true;
+      })
     ]
   }
 }

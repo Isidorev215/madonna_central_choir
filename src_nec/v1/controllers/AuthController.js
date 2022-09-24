@@ -29,9 +29,10 @@ const registration = async (req, res, next) => {
         isApproved: true
       })
 
-      // create epochs and update epoch
+      // create epochs and update epoch to push to admin
+      // collectioon.inserOne because as the epoch, it breaks validation, so we have to skip it
       const epochMeeting = await Meeting.collection.insertOne({ epoch: true, venue: null, desc: 'This is the epoch for meetings', attendance: [], scheduledDate: Date.now() })
-      const epochDue = await Due.collection.insertOne({ epoch: true, amount: null, desc: 'This is the epoch for dues', paid: [] })
+      const epochDue = await Due.collection.insertOne({ epoch: true, amount: null, desc: 'This is the epoch for dues', paid: [], duesDateFor: Date.now() })
       adminToSave.meetings.push({ details: epochMeeting.insertedId, attended: false });
       adminToSave.dues.push({ details: epochDue.insertedId, paid: false });
 
@@ -46,7 +47,7 @@ const registration = async (req, res, next) => {
       // Any subsequent user is just a user
       const userToSave = new User(req.body)
 
-      // find epochs
+      // find epochs and push to user
       const epochMeeting = await Meeting.findOne({epoch: true}).select('_id')
       const epochDue = await Due.findOne({epoch: true}).select('_id')
       userToSave.meetings.push({ details: epochMeeting._id, attended: false });

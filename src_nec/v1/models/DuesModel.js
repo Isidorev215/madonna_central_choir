@@ -7,6 +7,7 @@ const extraDueSchema = new Schema({
   epoch: { type: Boolean, default: false },
   amount: { type: Number, required: true },
   desc: { type: String, required: true },
+  duesDateFor: { type: Date, required: true },
   paid_members: {
     type: [{
       type: mongoose.SchemaTypes.ObjectId,
