@@ -1,7 +1,7 @@
 const express = require('express');
 const vhost = require('vhost');
 const cors = require('cors');
-const nec_app = require('./src_nec/app');
+const apiApp = require('./src/app');
 const { connectToCluster } = require('./config/clusterConnect');
 
 // loading env
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: process.env.CORS_ALLOWED_ORIGIN,
   credentials: true
 }));
 
@@ -29,6 +29,6 @@ connectToCluster((err) => {
 
 app.set("subdomain offset", 1);
 
-app.use(vhost( `${process.env.SUBDOMAIN_ONE}.${process.env.SERVER_DOMAIN}`, nec_app ));
+app.use(vhost( `${process.env.SUBDOMAIN_API}.${process.env.SERVER_DOMAIN}`, apiApp ));
 
 
