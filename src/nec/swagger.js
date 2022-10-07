@@ -14,7 +14,7 @@ const options = {
       servers: [`http://${process.env.SUBDOMAIN_ONE}.${process.env.SERVER_DOMAIN}:${process.env.PORT || 3000}/api/v1`]
     }
   },
-  apis: ['./src_nec/v1/routes/*.js', './src_nec/v1/models/UserModel.js'],
+  apis: ['./src/nec/v1/routes/*.js', './src/nec/v1/models/UsersModel.js'],
 }
 
 const swaggerSpec = swaggerJSDoc(options);

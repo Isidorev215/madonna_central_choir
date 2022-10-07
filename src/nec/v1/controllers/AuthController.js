@@ -4,6 +4,8 @@ const User = require('../models/UsersModel');
 // epoch puposes
 const Due = require('../models/DuesModel');
 const Meeting = require('../models/MeetingsModel');
+const { handleMongooseError } = require('../../../../utils/utilityFunctions');
+
 
 const registration = async (req, res, next) => {
   try {
@@ -30,7 +32,7 @@ const registration = async (req, res, next) => {
       })
 
       // create epochs and update epoch to push to admin
-      // collectioon.inserOne because as the epoch, it breaks validation, so we have to skip it
+      // collection.insertOne because as the epoch, it breaks validation, so we have to skip it
       const epochMeeting = await Meeting.collection.insertOne({ epoch: true, venue: null, desc: 'This is the epoch for meetings', attendance: [], scheduledDate: Date.now() })
       const epochDue = await Due.collection.insertOne({ epoch: true, amount: null, desc: 'This is the epoch for dues', paid: [], duesDateFor: Date.now() })
       adminToSave.meetings.push({ details: epochMeeting.insertedId, attended: false });
@@ -62,7 +64,7 @@ const registration = async (req, res, next) => {
       })
     }
   }catch(error){
-    next(error);
+    next(handleMongooseError(error));
     return;
   }
 }
@@ -120,7 +122,7 @@ const login = async (req, res, next) => {
     }
 
   }catch(error){
-    next(error);
+    next(handleMongooseError(error));
     return;
   }
 }

@@ -18,3 +18,4 @@ const meetingSchema = new Schema({
 
 const Meeting = mongoose.model('Meeting', meetingSchema)
 module.exports = Meeting;
+

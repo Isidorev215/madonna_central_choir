@@ -1,7 +1,7 @@
 const express = require('express');
 const vhost = require('vhost');
 const cors = require('cors');
-const apiApp = require('./src/app');
+const nec = require('./src/nec/app');
 const { connectToCluster } = require('./config/clusterConnect');
 
 // loading env
@@ -29,6 +29,6 @@ connectToCluster((err) => {
 
 app.set("subdomain offset", 1);
 
-app.use(vhost( `${process.env.SUBDOMAIN_API}.${process.env.SERVER_DOMAIN}`, apiApp ));
+app.use(vhost(`${process.env.SUBDOMAIN_ONE}.${process.env.SERVER_DOMAIN}`, nec ));
 
 

@@ -1,7 +1,7 @@
 const { matchedData } = require('express-validator');
 const User = require('../models/UsersModel');
 const Position = require('../models/PositionsModel');
-const { checkReqIsInMatchedData, handleMongooseError } = require('../../../utils/utilityFunctions');
+const { checkReqIsInMatchedData, handleMongooseError } = require('../../../../utils/utilityFunctions');
 
 
 // it is the controllers that communicate with the models

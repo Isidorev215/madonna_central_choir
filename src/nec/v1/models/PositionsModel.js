@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const User = require('./UsersModel');
 
-const positonSchema = new Schema({
+const positionSchema = new Schema({
   name: {
     type: String,
     required: [true, 'Postion name is required'],
@@ -39,5 +39,5 @@ const positonSchema = new Schema({
   }
 }, {timestamps: true})
 
-const Position = mongoose.model('Position', positonSchema);
+const Position = mongoose.model('Position', positionSchema);
 module.exports = Position;

@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-const { swaggerDocs: v1SwaggerDocs } = require('./v1/swagger');
+const { swaggerDocs: v1SwaggerDocs } = require('./swagger');
 
 // loading env
 if(process.env.NODE_ENV !== 'production'){
@@ -27,6 +27,7 @@ v1SwaggerDocs(app)
 // Passport stuff...
 require('./v1/config/passportJwtConfig')(passport);
 app.use(passport.initialize());
+
 
 // Routes
 app.use('/api/v1', require('./v1/routes/authRoutes'));
