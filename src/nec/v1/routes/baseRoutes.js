@@ -2,7 +2,7 @@ const { Router } = require('express')
 const router = Router();
 const baseController = require('../controllers/baseController');
 const { ensureJwtAuthentication } = require('../middlewares/authMiddlewares');
-const { UpdateProfileValidation, handleValidationError, createPositionValidation, getUsersValidation, getSingleUserValidation } = require('../middlewares/expressValidator');
+const { UpdateProfileValidation, handleValidationError, createPositionValidation, editPositionValidation, getUsersValidation, getSingleUserValidation } = require('../middlewares/expressValidator');
 const { admin: isAdmin } = require('../middlewares/checkRole');
 
 
@@ -13,6 +13,8 @@ router.get('/users', ensureJwtAuthentication, getUsersValidation(), handleValida
 router.get('/user/:user_id', ensureJwtAuthentication, getSingleUserValidation(), handleValidationError, baseController.getSingleUser)
 
 router.post('/create-position', ensureJwtAuthentication, isAdmin, createPositionValidation(), handleValidationError, baseController.createPosition)
+
+router.put('/edit-position/:position_id', ensureJwtAuthentication, isAdmin, editPositionValidation(), handleValidationError, baseController.editPosition)
 
 router.put('/profile/update', ensureJwtAuthentication, UpdateProfileValidation(), handleValidationError, baseController.updateProfile)
 

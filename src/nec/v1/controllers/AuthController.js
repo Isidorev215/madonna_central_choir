@@ -28,13 +28,14 @@ const registration = async (req, res, next) => {
       const adminToSave = new User({
         ...req.body,
         roles: ['Admin', 'User'],
-        isApproved: true
+        isApproved: true,
+        approvedAt: Date.now()
       })
 
       // create epochs and update epoch to push to admin
       // collection.insertOne because as the epoch, it breaks validation, so we have to skip it
       const epochMeeting = await Meeting.collection.insertOne({ epoch: true, venue: null, desc: 'This is the epoch for meetings', attendance: [], scheduledDate: Date.now() })
-      const epochDue = await Due.collection.insertOne({ epoch: true, amount: null, desc: 'This is the epoch for dues', paid: [], duesDateFor: Date.now() })
+      const epochDue = await Due.collection.insertOne({ epoch: true, due_type: 'Monthly', amount: null, desc: 'This is the epoch for dues', members_payment: [], due_date: Date.now() })
       adminToSave.meetings.push({ details: epochMeeting.insertedId, attended: false });
       adminToSave.dues.push({ details: epochDue.insertedId, paid: false });
 
@@ -96,12 +97,15 @@ const login = async (req, res, next) => {
     const isMatch = await bcrypt.compare(password, user.password)
     if(isMatch){
       const _id = user._id;
+      const role = user.roles[0];
+
       const expiresIn = Math.floor(Date.now() / 1000) + (15 * 60 * 60);
       const payload = {
         sub: _id,
         iat: Math.floor(Date.now() / 1000),
         exp: expiresIn,
         iss: process.env.JWT_ISSUER_BACKEND,
+        role,
       }
 
       const jwt = jsonwebtoken.sign(payload, process.env.PASSPORT_SECRET);

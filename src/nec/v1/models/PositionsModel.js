@@ -17,10 +17,6 @@ const positionSchema = new Schema({
     minLength: [10, 'Description must be at least 10 chars long'],
     maxLength: [255, 'Description must be at most 255 chars long'],
   },
-  allowedHolders: {
-    type: Schema.Types.Mixed,
-    default: 'Non'
-  },
   duties: {
     type: [{
       type: String,
@@ -30,6 +26,21 @@ const positionSchema = new Schema({
     required: [true, 'Position Duties is required'],
     validate: [(val) => val.length > 0, 'You must add at least one responsibility'],
     default: ['An ordinary member of the organization']
+  },
+  allowedHolders: {
+    type: Number,
+    validate: {
+      validator: function(val){
+        if(!isNaN(Number(val))){
+          if(Number(val) >= 0) return true;
+          else return false;
+        }else{
+          return false;
+        }
+      },
+      message: props => 'Invalid value for allowed holders (0, 1++)'
+    },
+    default: 0
   },
   holders: {
     type: [{

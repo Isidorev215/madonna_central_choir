@@ -183,14 +183,43 @@ module.exports = {
       .optional({ nullable: true })
       .trim()
       .notEmpty()
-      .withMessage('Allowed Holders must not be an empty value')
-      .isInt({min: 1})
-      .withMessage('Allowed holders should be a number greater than one (1)'),
+      .withMessage('Allowed Holders must not be an empty string/value')
+      .isInt({min: 0})
+      .withMessage('Allowed holders should be a value either 0 or a positive interger'),
       body('duties')
       .exists()
       .withMessage('Please define the duties of this position')
       .isArray({min: 1})
       .withMessage('Duties is an array of at least one duty')
+    ]
+  },
+  editPositionValidation: function(){
+    return [
+      param('position_id')
+      .exists()
+      .withMessage('Position Id is required'),
+      body('name')
+      .exists()
+      .withMessage('The name of the position is required'),
+      body('desc')
+      .exists()
+      .withMessage('Please give a short description of this positon'),
+      body('allowedHolders')
+      .optional({ nullable: true })
+      .trim()
+      .notEmpty()
+      .withMessage('Allowed Holders must not be an empty string/value')
+      .isInt({min: 0})
+      .withMessage('Allowed holders should be a value either 0 or a positive interger'),
+      body('duties')
+      .exists()
+      .withMessage('Please define the duties of this position')
+      .isArray({min: 1})
+      .withMessage('Duties is an array of at least one duty'),
+      body('holders')
+      .optional()
+      .isArray({min: 1})
+      .withMessage('Holders is an array of at least one user_id'),
     ]
   },
   getUsersValidation: function(){

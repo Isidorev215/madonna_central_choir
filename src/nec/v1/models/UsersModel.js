@@ -33,6 +33,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, lowercase: true, unique: true },
   password: { type: String, required: true, },
   isApproved: { type: Boolean, default: false },
+  approvedAt: { type: Date, default: null },
   chapter: { type: String, default: null },
   state: { type: String, default: null },
   country: { type: String, default: 'Nigeria' },

@@ -7,7 +7,10 @@ const { checkReqIsInMatchedData, handleMongooseError } = require('../../../../ut
 // it is the controllers that communicate with the models
 const getConfig = async (req, res, next) => {
   try {
-    const positions = await Position.find()
+    let position_query = Position.find()
+    position_query.populate({ path: 'holders', select: '_id firstName lastName'})
+
+    const positions = await position_query
     res.send({
       status: 'OK',
       data: {
@@ -116,8 +119,6 @@ const createPosition = async (req, res, next) => {
   const payload = req.body;
   try {
     const positionToSave = new Position(payload);
-    // This is becuse of the mixed type
-    positionToSave.markModified('allowedHolders');
 
     const position = await positionToSave.save()
     res.status(201).send({
@@ -132,11 +133,51 @@ const createPosition = async (req, res, next) => {
   }
 }
 
+const editPosition = async (req, res, next) => {
+  // get the fields defined in the validation chain and make sure req.body has no foreigner
+  const definedOnValidationChain = matchedData(req, { locations: ['body'], includeOptionals: true });
+  const definedOnValidationChainKeys = Object.keys(definedOnValidationChain);
+  const requestBodyKeys = Object.keys(req.body);
+
+  try{
+    if(!checkReqIsInMatchedData(definedOnValidationChainKeys, requestBodyKeys)){
+      // something is fishy with the req.body
+      const error = new Error('Invalid form fields');
+      error.code = 400;
+      throw error;
+    }
+
+
+    // database action
+    let position = await Position.findById(req.params.position_id)
+    // check position holders array
+    if(Number(position.allowedHolders) !== 0 && req.body.holders.length > Number(position.allowedHolders) ){
+      const error = new Error(`This position only allows ${Number(position.allowedHolders)} user(s)`);
+      error.code = 400;
+      throw error;
+    }
+
+    // push new positions
+
+
+    Object.assign(position, req.body);
+    await position.save();
+    res.status(200).send({
+      status: 'OK',
+      data: {
+        message: 'Position Updated Successfully'
+      }
+    })
+  }catch(error){
+    return next(handleMongooseError(error));
+  }
+}
 
 module.exports = {
   getConfig,
   updateProfile,
   getUsers,
   getSingleUser,
-  createPosition
+  createPosition,
+  editPosition
 }
