@@ -8,7 +8,7 @@ const { checkReqIsInMatchedData, handleMongooseError } = require('../../../../ut
 const getConfig = async (req, res, next) => {
   try {
     let position_query = Position.find()
-    position_query.populate({ path: 'holders', select: '_id firstName lastName'})
+    position_query.populate({ path: 'holders', select: '_id firstName lastName profileImage isRegularized isApproved'})
 
     const positions = await position_query
     res.send({
@@ -147,18 +147,16 @@ const editPosition = async (req, res, next) => {
       throw error;
     }
 
-
     // database action
     let position = await Position.findById(req.params.position_id)
+
     // check position holders array
     if(Number(position.allowedHolders) !== 0 && req.body.holders.length > Number(position.allowedHolders) ){
       const error = new Error(`This position only allows ${Number(position.allowedHolders)} user(s)`);
       error.code = 400;
       throw error;
     }
-
     // push new positions
-
 
     Object.assign(position, req.body);
     await position.save();

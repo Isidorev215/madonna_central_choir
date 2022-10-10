@@ -32,7 +32,7 @@ const positionSchema = new Schema({
     validate: {
       validator: function(val){
         if(!isNaN(Number(val))){
-          if(Number(val) >= 0) return true;
+          if(Number(val) >= 0 && Number(val) % 1 === 0) return true;
           else return false;
         }else{
           return false;
