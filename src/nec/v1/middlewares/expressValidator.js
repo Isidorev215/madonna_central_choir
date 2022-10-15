@@ -216,6 +216,13 @@ module.exports = {
       .withMessage('Please define the duties of this position')
       .isArray({min: 1})
       .withMessage('Duties is an array of at least one duty'),
+    ]
+  },
+  editPositionHoldersValidation: function(){
+    return[
+      param('position_id')
+      .exists()
+      .withMessage('Position Id is required'),
       body('holders')
       .optional()
       .isArray({min: 1})

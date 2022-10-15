@@ -149,15 +149,6 @@ const editPosition = async (req, res, next) => {
 
     // database action
     let position = await Position.findById(req.params.position_id)
-
-    // check position holders array
-    if(Number(position.allowedHolders) !== 0 && req.body.holders.length > Number(position.allowedHolders) ){
-      const error = new Error(`This position only allows ${Number(position.allowedHolders)} user(s)`);
-      error.code = 400;
-      throw error;
-    }
-    // push new positions
-
     Object.assign(position, req.body);
     await position.save();
     res.status(200).send({
@@ -171,11 +162,57 @@ const editPosition = async (req, res, next) => {
   }
 }
 
+const editPositionHolders = async (req, res, next) => {
+  // get the fields defined in the validation chain and make sure req.body has no foreigner
+  const definedOnValidationChain = matchedData(req, { locations: ['body'], includeOptionals: true });
+  const definedOnValidationChainKeys = Object.keys(definedOnValidationChain);
+  const requestBodyKeys = Object.keys(req.body);
+
+  try {
+    if(!checkReqIsInMatchedData(definedOnValidationChainKeys, requestBodyKeys)){
+      // something is fishy with the req.body
+      const error = new Error('Invalid form fields');
+      error.code = 400;
+      throw error;
+    }
+
+
+    // // check position holders array matches any limit
+    let position = await Position.findById(req.params.position_id)
+    if(Number(position.allowedHolders) !== 0 && req.body.holders.length > Number(position.allowedHolders) ){
+      const error = new Error(`This position only allows ${Number(position.allowedHolders)} user(s)`);
+      error.code = 400;
+      throw error;
+    }
+
+    // revert the old holders to member in their users documents
+    await Position.updateMany({}, { $pullAll: { holders: req.body.holders } })
+    await User.updateMany().where('_id').in(position.holders).set('membersPosition', 'member');
+
+    // Update position holders
+    Object.assign(position, req.body);
+    const response = await position.save();
+    // update the new holders in their users document
+    await User.updateMany().where('_id').in(response.holders).set('membersPosition', position.name);
+
+    res.status(200).send({
+      status: 'OK',
+      data: {
+        message: 'Position Holders Updated Successfully'
+      }
+    })
+
+  }catch(error){
+    return next(handleMongooseError(error));
+  }
+}
+
 module.exports = {
   getConfig,
   updateProfile,
   getUsers,
   getSingleUser,
   createPosition,
-  editPosition
+  editPosition,
+  editPositionHolders,
 }

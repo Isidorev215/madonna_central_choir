@@ -46,7 +46,7 @@ const userSchema = new Schema({
     enum: { values: ['Admin', 'User'], message: '{VALUE} is not a supported role'},
     default: ['User']
   },
-  membersPosition: { type: String, default: 'Member' },
+  membersPosition: { type: String, default: 'member' },
   church: {
     type: churchSchema,
     default: () => ({})
