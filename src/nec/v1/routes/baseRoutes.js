@@ -9,7 +9,8 @@ const {
   editPositionValidation,
   editPositionHoldersValidation,
   getUsersValidation,
-  getSingleUserValidation } = require('../middlewares/expressValidator');
+  getSingleUserValidation,
+  updateUserStatusValidation } = require('../middlewares/expressValidator');
 const { admin: isAdmin } = require('../middlewares/checkRole');
 
 
@@ -26,5 +27,7 @@ router.put('/edit-position/:position_id', ensureJwtAuthentication, isAdmin, edit
 router.put('/edit-position-holders/:position_id', ensureJwtAuthentication, isAdmin, editPositionHoldersValidation(), handleValidationError, baseController.editPositionHolders)
 
 router.put('/profile/update', ensureJwtAuthentication, UpdateProfileValidation(), handleValidationError, baseController.updateProfile)
+
+router.put('/update-user-status/:user_id', ensureJwtAuthentication, isAdmin, updateUserStatusValidation(), handleValidationError, baseController.updateUserStatus)
 
 module.exports = router;

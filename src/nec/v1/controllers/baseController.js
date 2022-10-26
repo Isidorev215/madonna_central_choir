@@ -14,7 +14,7 @@ const getConfig = async (req, res, next) => {
     res.send({
       status: 'OK',
       data: {
-        ...req.user,
+        user: req.user,
         positions
       }
     })
@@ -185,7 +185,7 @@ const editPositionHolders = async (req, res, next) => {
       throw error;
     }
 
-    // revert the old holders to member in their users documents
+    // revert the old holders to 'member' in their users documents and remove from corresponding position
     await Position.updateMany({}, { $pullAll: { holders: req.body.holders } })
     await User.updateMany().where('_id').in(position.holders).set('membersPosition', 'member');
 
@@ -207,6 +207,12 @@ const editPositionHolders = async (req, res, next) => {
   }
 }
 
+const updateUserStatus = async (req, res, next) => {
+  const user_id = req.params.user_id;
+  const type = req.query.type;
+  const status = req.query.status;
+}
+
 module.exports = {
   getConfig,
   updateProfile,
@@ -215,4 +221,5 @@ module.exports = {
   createPosition,
   editPosition,
   editPositionHolders,
+  updateUserStatus,
 }

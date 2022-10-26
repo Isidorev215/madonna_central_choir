@@ -249,5 +249,23 @@ module.exports = {
         return true;
       })
     ]
+  },
+  updateUserStatusValidation: function(){
+    return [
+      param('user_id')
+      .exists()
+      .withMessage('user_id is required')
+      .custom((value, { req }) => {
+        if(!isValidObjectId(value)){
+          throw new Error('user_id is required')
+        }
+        return true;
+      }),
+      query('type')
+      .exists()
+      .withMessage('type of status is required')
+      .isIn(['approval', 'admin', 'regularization'])
+      .withMessage((value) => `${value} is not a valid status type`)
+    ]
   }
 }

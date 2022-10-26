@@ -7,6 +7,7 @@ const Due = require('./DuesModel');
 const churchSchema = new Schema({
   churchName: { type: String, default: null },
   denomination: { type: String, default: null },
+  city: { type: String, default: null },
   state: { type: String, default: null },
   country: { type: String, default: null },
 })
